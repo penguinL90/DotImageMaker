@@ -178,10 +178,10 @@ namespace DotImageMaker
 
         private async void SummonBtn_Click(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(NowPath)) return;
             SummonBtn.IsEnabled = false;
             timer.Start();
-            if (string.IsNullOrWhiteSpace(NowPath)) return;
-            BitmapSource bs;
+            BitmapSource? bs;
             if (useGray)
                 bs = await SummonGray();
             else
@@ -191,6 +191,8 @@ namespace DotImageMaker
             SaveImage(bs);
             Info.Text = "finished!";
             SummonBtn.IsEnabled = true;
+            bs = null;
+            GC.Collect();
         }
 
         private async Task<BitmapSource> SummonGray()
@@ -257,8 +259,6 @@ namespace DotImageMaker
             FormatConvertedBitmap fbm = new(img, PixelFormats.Bgr24, null, 0);
             byte[] imgbuf = new byte[width * height * 3];
             fbm.CopyPixels(imgbuf, img.PixelWidth * 3, 0);
-            fbm.Freeze();
-            img.Freeze();
             totalbyte = width * height;
             byte[] imgarr = new byte[(100 + width * DotSize) * (100 + height * DotSize) * 4];
             Array.Fill(imgarr, (byte)0);
