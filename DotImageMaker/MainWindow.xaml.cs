@@ -1,21 +1,10 @@
 ﻿using Microsoft.Win32;
-using System;
-using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using System.Windows.Threading;
 
 namespace DotImageMaker
@@ -180,19 +169,34 @@ namespace DotImageMaker
         {
             if (string.IsNullOrWhiteSpace(NowPath)) return;
             SummonBtn.IsEnabled = false;
+            DateTime s1 = DateTime.Now;
             timer.Start();
             BitmapSource? bs;
-            if (useGray)
-                bs = await SummonGray();
-            else
-                bs = await SummonSRGB();
-            timer.Stop();
-            Info.Text = "preparing for downloading...";
-            SaveImage(bs);
-            Info.Text = "finished!";
-            SummonBtn.IsEnabled = true;
-            bs = null;
-            GC.Collect();
+            try
+            {
+                if (useGray)
+                    bs = await SummonGray();
+                else
+                    bs = await SummonSRGB();
+                DateTime e1 = DateTime.Now;
+                Info.Text = "preparing for downloading...";
+                DateTime s2 = DateTime.Now;
+                double sizeMiB = SaveImage(bs) / 1024d / 1024d;
+                DateTime e2 = DateTime.Now;
+                Info.Text = $"finished!\ncalculation time: {(e1 - s1).TotalMilliseconds:F3}ms\n image saving time: {(e2 - s2).TotalMilliseconds:F3}ms\nimage size: {sizeMiB:F3}MiB";
+            }
+            catch(Exception ex)
+            {
+                Info.Text = $"Error: [{ex.GetType().Name}] {ex.Message}";
+            }
+            finally
+            {
+                timer.Stop();
+                SummonBtn.IsEnabled = true;
+                bs = null;
+                GC.Collect();
+            }
+            
         }
 
         private async Task<BitmapSource> SummonGray()
@@ -226,17 +230,19 @@ namespace DotImageMaker
                         byte bit = imgbuf[h * width + w];
                         int _x = 50 + DotSize * w;
                         int _y = 50 + DotSize * h;
-                        int bitindex = (h * width + w) * 3;
                         foreach ((int, int) i in circle)
                         {
-                            lock (arrlock)
+                            int index = ((i.Item2 + _y) * (width * DotSize + 100) + (i.Item1 + _x)) * 4;
+                            unsafe
                             {
-                                int index = ((i.Item2 + _y) * (width * DotSize + 100) + (i.Item1 + _x)) * 4;
-                                imgarr[index] = bit;
-                                imgarr[index + 1] = bit;
-                                imgarr[index + 2] = bit;
-                                imgarr[index + 3] = 255;
+                                fixed (byte* bptr =  &imgarr[index])
+                                {
+                                    *bptr = bit;
+                                    *(bptr + 1) = bit;
+                                    *(bptr + 2) = bit;
+                                    *(bptr + 3) = 255;
 
+                                }
                             }
                         }
                         ++nowbyte;
@@ -277,14 +283,16 @@ namespace DotImageMaker
                         int bitindex = (h * width + w) * 3;
                         foreach ((int, int) i in circle)
                         {
-                            lock (arrlock)
+                            int index = ((i.Item2 + _y) * (width * DotSize + 100) + (i.Item1 + _x)) * 4;
+                            unsafe
                             {
-                                int index = ((i.Item2 + _y) * (width * DotSize + 100) + (i.Item1 + _x)) * 4;
-                                imgarr[index] = imgbuf[bitindex];
-                                imgarr[index + 1] = imgbuf[bitindex + 1];
-                                imgarr[index + 2] = imgbuf[bitindex + 2];
-                                imgarr[index + 3] = 255;
-
+                                fixed (byte* bptr = &imgarr[index])
+                                {
+                                    *bptr = imgbuf[bitindex];
+                                    *(bptr + 1) = imgbuf[bitindex + 1];
+                                    *(bptr + 2) = imgbuf[bitindex + 2];
+                                    *(bptr + 3) = 255;
+                                }
                             }
                         }
                         ++nowbyte;
@@ -294,7 +302,7 @@ namespace DotImageMaker
             return BitmapSource.Create(100 + width * DotSize, 100 + height * DotSize, 96, 96, format, null, imgarr, stride);
         }
 
-        private void SaveImage(BitmapSource bs)
+        private long SaveImage(BitmapSource bs)
         {
             OpenFolderDialog openFolder = new()
             {
@@ -307,8 +315,12 @@ namespace DotImageMaker
                 PngBitmapEncoder encoder = new();
                 encoder.Frames.Add(BitmapFrame.Create(bs));
                 encoder.Save(fs);
+                fs.Flush();
+                long size = fs.Length;
                 fs.Close();
+                return size;
             }
+            return 0;
         }
 
         private void UpdateInfo(object? sender, object? e)

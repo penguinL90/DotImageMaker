@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DotImageMaker"
         mc:Ignorable="d"
-        MinHeight="720" MinWidth="1280"
-        Title="MainWindow" Height="720" Width="1280"
+        Height="450" Width="500"
+        Title="DotImageMaker by PenguinL90" ResizeMode="NoResize"
         Background="LightGray"
         DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Window.Resources>
@@ -69,32 +69,48 @@
     
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition Height="75"/>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="0.5*"/>
+            <RowDefinition Height="1.5*"/>
+            <RowDefinition Height="0.5*"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
         <Image x:Name="Image"></Image>
-        
-        <StackPanel Orientation="Horizontal"
-                    Grid.Row="1"
-                    Background="DarkGray">
 
+        <StackPanel HorizontalAlignment="Center" Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="3">
             <Button Style="{DynamicResource BtnTemplate}" x:Name="ImportImageBtn" Content="Import Image"
                     Margin="10" Padding="15"
                     FontFamily="Consolas" FontSize="15"
                     VerticalAlignment="Center"
                     Click="ImportImageBtn_Click"/>
 
+            <Button Style="{DynamicResource BtnTemplate}" x:Name="SummonBtn" Content="Summon"
+                    Margin="10" Padding="15"
+                    FontFamily="Consolas" FontSize="15"
+                    VerticalAlignment="Center" Click="SummonBtn_Click"/>
+
+        </StackPanel>
+
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="0" Grid.ColumnSpan="3"
+                    Margin="25 10">
+            
             <StackPanel Orientation="Vertical"
                         VerticalAlignment="Center"
                         Margin="10">
+                
                 <TextBlock FontSize="12" FontFamily="Consolas"
                            VerticalAlignment="Center" HorizontalAlignment="Center"
                            Text="Res. width"
                            Margin="5"/>
+                
                 <TextBox x:Name="WidthBox" Width="75" Margin="5" FontFamily="Consolas"
                          Text="{Binding width, Mode=TwoWay}"></TextBox>
             </StackPanel>
@@ -102,76 +118,90 @@
             <StackPanel Orientation="Vertical"
                         VerticalAlignment="Center"
                         Margin="10">
+                
                 <TextBlock FontSize="12" FontFamily="Consolas"
                            VerticalAlignment="Center" HorizontalAlignment="Center"
                            Text="Res. height"
                            Margin="5"/>
+                
                 <TextBox x:Name="HeightBox" Width="75" Margin="5" FontFamily="Consolas"
                          Text="{Binding height, Mode=TwoWay}"></TextBox>
             </StackPanel>
-            
+
             <StackPanel Orientation="Vertical"
                         VerticalAlignment="Center"
                         Margin="10">
+                
                 <TextBlock FontSize="12" FontFamily="Consolas"
                            VerticalAlignment="Center" HorizontalAlignment="Center"
                            Text="DotSize"
                            Margin="0"/>
+                
                 <TextBlock FontSize="10" FontFamily="Consolas"
                            VerticalAlignment="Center" HorizontalAlignment="Center"
                            Text="(>= 2 * DotRadius)"
                            Margin="0"/>
+                
                 <TextBox x:Name="DotSizeBox" Width="75" Margin="5 5 5 7" FontFamily="Consolas"
                          Text="{Binding DotSize, Mode=TwoWay}"></TextBox>
+            
             </StackPanel>
 
             <StackPanel Orientation="Vertical"
                         VerticalAlignment="Center"
                         Margin="10">
+                
                 <TextBlock FontSize="12" FontFamily="Consolas"
-                           VerticalAlignment="Center" HorizontalAlignment="Center"
-                           Text="DotRadius"
-                           Margin="5"/>
+                            VerticalAlignment="Center" HorizontalAlignment="Center"
+                            Text="DotRadius"
+                            Margin="5"/>
+                
                 <TextBox x:Name="DotRadiusBox" Width="75" Margin="5" FontFamily="Consolas"
                          Text="{Binding DotRadius, Mode=TwoWay}"></TextBox>
             </StackPanel>
+            
+        </StackPanel>
 
-            <StackPanel Orientation="Horizontal"
-                        VerticalAlignment="Center"
-                        Margin="5">
-                <StackPanel Orientation="Vertical">
-                    <TextBlock FontSize="12" FontFamily="Consolas"
-                               VerticalAlignment="Center" HorizontalAlignment="Center"
-                               Text="Gray"
-                               Margin="5"/>
-                    <CheckBox HorizontalAlignment="Center" Margin="5" IsThreeState="False" IsChecked="{Binding UseGray, Mode=TwoWay}"></CheckBox>
-                </StackPanel>
-                <StackPanel Orientation="Vertical">
-                    <TextBlock FontSize="12" FontFamily="Consolas"
-                               VerticalAlignment="Center" HorizontalAlignment="Center"
-                               Text="SRGB"
-                               Margin="5"/>
-                    <CheckBox HorizontalAlignment="Center" Margin="5" IsThreeState="False" IsChecked="{Binding UseSrgb, Mode=TwoWay}"></CheckBox>
+        <StackPanel Orientation="Horizontal"
+                    Grid.Row="1" Grid.ColumnSpan="3"
+                    Margin="25 10"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Left">
+            
+            <StackPanel Orientation="Vertical"
+                        VerticalAlignment="Center">
+                
+                <TextBlock FontSize="12" FontFamily="Consolas"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                           Text="Gray"
+                           Margin="5"/>
+                
+                <CheckBox HorizontalAlignment="Center" Margin="5" IsThreeState="False" IsChecked="{Binding UseGray, Mode=TwoWay}"></CheckBox>
+            
+            </StackPanel>
 
-                </StackPanel>
+            <StackPanel Orientation="Vertical"
+                        VerticalAlignment="Center">
+                
+                <TextBlock FontSize="12" FontFamily="Consolas"
+                           VerticalAlignment="Center" HorizontalAlignment="Center"
+                           Text="SRGB"
+                           Margin="5"/>
+                
+                <CheckBox HorizontalAlignment="Center" Margin="5" IsThreeState="False" IsChecked="{Binding UseSrgb, Mode=TwoWay}"></CheckBox>
 
             </StackPanel>
 
-            <Button Style="{DynamicResource BtnTemplate}" x:Name="SummonBtn" Content="Summon"
-                    Margin="10" Padding="15"
-                    FontFamily="Consolas" FontSize="15"
-                    VerticalAlignment="Center" Click="SummonBtn_Click"/>
-
-            <Border BorderThickness="2" BorderBrush="DimGray" Margin="5" CornerRadius="5" Padding="5">
-                <TextBlock x:Name="Info" FontSize="12" FontFamily="Consolas" VerticalAlignment="Center" TextAlignment="Center" Width="200" />
-            </Border>
+            <StackPanel Margin="5" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                <TextBlock FontSize="15" FontFamily="Consolas" Text="Image: " Margin="5 0 0 0"/>
+                <TextBlock x:Name="FileNameTxt" FontSize="15" FontFamily="Consolas" Text="{Binding FileName, Mode=OneWay}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
 
         </StackPanel>
 
-        <StackPanel Margin="5" HorizontalAlignment="Center" VerticalAlignment="Bottom" Orientation="Horizontal">
-            <TextBlock FontSize="15" FontFamily="Consolas" Text="Image: "/>
-            <TextBlock x:Name="FileNameTxt" FontSize="15" FontFamily="Consolas" Text="{Binding FileName, Mode=OneWay}"/>
-        </StackPanel>
-    
+        <Border Grid.Row="4" Grid.ColumnSpan="3" BorderThickness="2" BorderBrush="DimGray" Margin="50 5" CornerRadius="5" Padding="5">
+            <TextBlock x:Name="Info" FontSize="12" FontFamily="Consolas" VerticalAlignment="Center" TextAlignment="Center" Width="200" TextWrapping="WrapWithOverflow"/>
+        </Border>
+
     </Grid>
 </Window>
