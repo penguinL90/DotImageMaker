@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
@@ -10,7 +11,7 @@ using System.Windows.Threading;
 namespace DotImageMaker
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// longeraction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
@@ -128,9 +129,9 @@ namespace DotImageMaker
             }
         }
 
-        private int totalbyte = 1;
+        private long totalbyte = 1;
 
-        private int nowbyte = 0;
+        private long nowbyte = 0;
 
         private DispatcherTimer timer = new();
 
@@ -225,14 +226,14 @@ namespace DotImageMaker
             await Task.Run(() => {
                 Parallel.For(0, height, (h) =>
                 {
-                    for (int w = 0; w < width; w++)
+                    for (long w = 0; w < width; w++)
                     {
                         byte bit = imgbuf[h * width + w];
-                        int _x = 50 + DotSize * w;
-                        int _y = 50 + DotSize * h;
-                        foreach ((int, int) i in circle)
+                        long _x = 50 + DotSize * w;
+                        long _y = 50 + DotSize * h;
+                        foreach ((long, long) i in circle)
                         {
-                            int index = ((i.Item2 + _y) * (width * DotSize + 100) + (i.Item1 + _x)) * 4;
+                            long index = ((i.Item2 + _y) * (width * DotSize + 100) + (i.Item1 + _x)) * 4;
                             unsafe
                             {
                                 fixed (byte* bptr =  &imgarr[index])
@@ -276,14 +277,14 @@ namespace DotImageMaker
             await Task.Run(() => {
                 Parallel.For(0, height, (h) =>
                 {
-                    for (int w = 0; w < width; w++)
+                    for (long w = 0; w < width; w++)
                     {
-                        int _x = 50 + DotSize * w;
-                        int _y = 50 + DotSize * h;
-                        int bitindex = (h * width + w) * 3;
-                        foreach ((int, int) i in circle)
+                        long _x = 50 + DotSize * w;
+                        long _y = 50 + DotSize * h;
+                        long bitindex = (h * width + w) * 3;
+                        foreach ((long, long) i in circle)
                         {
-                            int index = ((i.Item2 + _y) * (width * DotSize + 100) + (i.Item1 + _x)) * 4;
+                            long index = ((i.Item2 + _y) * (width * DotSize + 100) + (i.Item1 + _x)) * 4;
                             unsafe
                             {
                                 fixed (byte* bptr = &imgarr[index])
@@ -330,12 +331,12 @@ namespace DotImageMaker
 
         private List<(int, int)> CaculateCircle()
         {
-            List<(int, int)> list = new();
+            ConcurrentBag<(int, int)> bag = new();
             int mid_x = (int)(DotSize * 0.5);
             int mid_y = (int)(DotSize * 0.5);
             int max_x = DotSize;
             int max_y = DotSize;
-            for (int y = 0; y < max_y; ++y)
+            Parallel.For(0, max_y, y =>
             {
                 int bk = 0;
                 for (int x = 0; x < max_x; ++x)
@@ -343,15 +344,15 @@ namespace DotImageMaker
                     if (Math.Pow(mid_x - x, 2) + Math.Pow(mid_y - y, 2) <= Math.Pow(DotRadius, 2))
                     {
                         bk = 1;
-                        list.Add((x, y));
+                        bag.Add((x, y));
                     }
                     else
                     {
                         if (bk == 1) break;
                     }
                 }
-            }
-            return list;
+            });
+            return bag.ToList();
         }
     }
 }
